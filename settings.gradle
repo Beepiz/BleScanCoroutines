@@ -1,0 +1,1 @@
+include ':sample-app-mobile', ':sample-app-wear', ':sample-common', ':core'
