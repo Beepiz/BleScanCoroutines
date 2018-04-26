@@ -12,6 +12,7 @@ import android.os.Build.VERSION_CODES.O_MR1
 import android.support.annotation.RequiresApi
 import android.support.annotation.RequiresPermission
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
@@ -34,21 +35,11 @@ class BleScanner(private val context: CoroutineContext = CommonPool) {
     fun scan(filters: List<ScanFilter>?, settings: ScanSettings): ReceiveChannel<ScanResult> {
         requireSafeSettings(settings)
         val scanResultsChannel = Channel<ScanResult>(capacity = UNLIMITED)
-        val scanCallback = object : ScanCallback() {
-            override fun onScanResult(callbackType: Int, result: ScanResult) {
-                scanResultsChannel.offer(result)
-            }
-
-            override fun onBatchScanResults(results: List<ScanResult>) {
-                results.forEach { scanResultsChannel.offer(it) }
-            }
-
-            override fun onScanFailed(errorCode: Int) {
-                scanResultsChannel.close(ScanFailedException(errorCode))
-            }
-        }
+        val scanCallback = ChannelScanCallback(scanResultsChannel)
+        val postScanStart = CompletableDeferred<Unit>()
         launch(context) {
             scanner.startScan(filters, settings, scanCallback)
+            postScanStart.complete(Unit)
             if (SDK_INT >= O_MR1 && scanCallback.isScanningTooFrequently()) {
                 scanResultsChannel.close(ScanFailedException(SCAN_FAILED_SCANNING_TOO_FREQUENTLY))
             }
@@ -59,6 +50,7 @@ class BleScanner(private val context: CoroutineContext = CommonPool) {
                     send(scanResult)
                 }
             } finally {
+                postScanStart.await()
                 scanner.stopScan(scanCallback)
             }
         }
