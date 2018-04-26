@@ -12,12 +12,10 @@ import android.os.Build.VERSION_CODES.O_MR1
 import android.support.annotation.RequiresApi
 import android.support.annotation.RequiresPermission
 import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.launch
 import splitties.exceptions.illegal
 import splitties.systemservices.bluetoothManager
 import kotlin.coroutines.experimental.CoroutineContext
@@ -34,23 +32,18 @@ class BleScanner(private val context: CoroutineContext = CommonPool) {
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     fun scan(filters: List<ScanFilter>?, settings: ScanSettings): ReceiveChannel<ScanResult> {
         requireSafeSettings(settings)
-        val scanResultsChannel = Channel<ScanResult>(capacity = UNLIMITED)
-        val scanCallback = ChannelScanCallback(scanResultsChannel)
-        val postScanStart = CompletableDeferred<Unit>()
-        launch(context) {
-            scanner.startScan(filters, settings, scanCallback)
-            postScanStart.complete(Unit)
-            if (SDK_INT >= O_MR1 && scanCallback.isScanningTooFrequently()) {
-                scanResultsChannel.close(ScanFailedException(SCAN_FAILED_SCANNING_TOO_FREQUENTLY))
-            }
-        }
         return produce(context) {
+            val scanResultsChannel = Channel<ScanResult>(capacity = UNLIMITED)
+            val scanCallback = ChannelScanCallback(scanResultsChannel)
+            scanner.startScan(filters, settings, scanCallback)
             try {
+                if (SDK_INT >= O_MR1 && scanCallback.isScanningTooFrequently()) {
+                    scanResultsChannel.close(ScanFailedException(SCAN_FAILED_SCANNING_TOO_FREQUENTLY))
+                }
                 for (scanResult in scanResultsChannel) {
                     send(scanResult)
                 }
             } finally {
-                postScanStart.await()
                 scanner.stopScan(scanCallback)
             }
         }
