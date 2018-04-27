@@ -2,8 +2,8 @@ if (isRelease) apply from: '../no-version-ranges.gradle'
 
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.beepiz.blegattcoroutines'
-project.archivesBaseName = "blegattcoroutines-${project.name}"
+group = 'com.beepiz.blescancoroutines'
+project.archivesBaseName = "blescancoroutines-${project.name}"
 version = library_version
 def gitUrl = 'https://github.com/Beepiz/BleScanCoroutines.git'
 def siteUrl = 'https://github.com/Beepiz/BleScanCoroutines'
