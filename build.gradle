@@ -29,7 +29,7 @@ allprojects {
         projectSdk_target_version = projectSdk_version
 
         // Libraries
-        groupId = "com.beepiz.blegattcoroutines"
+        groupId = "com.beepiz.blescancoroutines"
         library_version = "0.1.0-SNAPSHOT"
         isSnapshot = library_version.endsWith("-SNAPSHOT")
         isRelease = !isSnapshot
