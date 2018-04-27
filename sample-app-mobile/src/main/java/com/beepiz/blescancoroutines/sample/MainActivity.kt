@@ -1,5 +1,6 @@
 package com.beepiz.blescancoroutines.sample
 
+import android.Manifest
 import android.bluetooth.le.ScanSettings
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.LOLLIPOP
@@ -11,6 +12,12 @@ import com.beepiz.blescancoroutines.sample.common.extensions.awaitOneClick
 import com.beepiz.blescancoroutines.sample.common.extensions.createJob
 import com.beepiz.blescancoroutines.sample.common.extensions.launchInUi
 import com.beepiz.bluetooth.scancoroutines.experimental.BleScanner
+import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.channels.Channel
+import splitties.alertdialog.appcompat.alert
+import splitties.alertdialog.appcompat.message
+import splitties.alertdialog.appcompat.okButton
+import splitties.alertdialog.appcompat.onDismiss
 import splitties.toast.toast
 import splitties.viewdsl.core.setContentView
 import splitties.views.onClick
@@ -24,6 +31,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val ui = MainUi(this)
         if (SDK_INT >= LOLLIPOP) launchInUi(parent = job) {
+            getPermission(Manifest.permission.ACCESS_FINE_LOCATION, permissionRequestsChannel, 0) {
+                val acknowledgment = CompletableDeferred<Unit>()
+                alert {
+                    message = "BLE scan needs location permission"
+                    okButton { acknowledgment.complete(Unit) }
+                    onDismiss { acknowledgment.complete(Unit) }
+                }.show()
+                acknowledgment.await()
+            }
             consumeScanStartStops(ui.btn)
         } else {
             toast("Unsupported device. Android 5.0 or newer required for BLE scan")
@@ -31,7 +47,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
         setContentView(ui)
+    }
 
+    private val permissionRequestsChannel = Channel<Int>(capacity = Channel.CONFLATED)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            0 -> permissionRequestsChannel.offer(grantResults.single())
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
     }
 
     @RequiresApi(LOLLIPOP)
