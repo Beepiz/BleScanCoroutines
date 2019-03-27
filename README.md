@@ -18,7 +18,7 @@ into your root project `build.gradle` file:
 ```groovy
 allProjects {
     ext {
-        blescancoroutines_version = '0.1.0-alpha1'
+        blescancoroutines_version = '0.2.0'
     }
 }
 ```
