@@ -13,7 +13,7 @@ internal fun BluetoothLeScanner.getScannerId(callback: ScanCallback): Int {
         isAccessible = true
     }
     @Suppress("UNCHECKED_CAST")
-    val leScanClients = scanClientsField?.get(this)!! as Map<ScanCallback, *>
+    val leScanClients = scanClientsField.get(this) as Map<ScanCallback, *>
     val bleScanCallbackWrapper = leScanClients[callback] ?: return SCANNER_ID_SCANNING_TOO_FREQUENTLY
     val scannerIdField = bleScanCallbackWrapper.javaClass.getDeclaredField("mScannerId").apply {
         isAccessible = true

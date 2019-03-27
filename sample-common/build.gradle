@@ -48,10 +48,8 @@ dependencies {
     api "com.louiscad.splitties:splitties-bitflags:$splitties_version"
     api "com.louiscad.splitties:splitties-systemservices:$splitties_version"
     api "com.louiscad.splitties:splitties-toast:$splitties_version"
-    api "com.louiscad.splitties:splitties-checkedlazy:$splitties_version"
-    api "com.louiscad.splitties:splitties-viewdsl-constraintlayout:$splitties_version"
-    api "com.louiscad.splitties:splitties-viewdsl-appcompat:$splitties_version"
-    api "com.louiscad.splitties:splitties-viewdsl-appcompat-styles:$splitties_version"
+    api "com.louiscad.splitties:splitties-views-dsl-constraintlayout:$splitties_version"
+    api "com.louiscad.splitties:splitties-views-dsl-appcompat:$splitties_version"
 
     // Timber (log utility)
     api "com.jakewharton.timber:timber:$timber_version"
@@ -59,10 +57,4 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
 }

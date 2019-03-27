@@ -1,19 +1,18 @@
 package com.beepiz.blescancoroutines.sample
 
 import android.content.Context
-import android.view.Gravity
-import splitties.viewdsl.appcompat.button
-import splitties.viewdsl.core.Ui
-import splitties.viewdsl.core.add
-import splitties.viewdsl.core.lParams
-import splitties.viewdsl.core.v
-import splitties.viewdsl.core.verticalLayout
+import splitties.views.dsl.core.Ui
+import splitties.views.dsl.core.add
+import splitties.views.dsl.core.button
+import splitties.views.dsl.core.lParams
+import splitties.views.dsl.core.verticalLayout
+import splitties.views.gravityCenterHorizontal
 
 class MainUi(override val ctx: Context) : Ui {
 
-    val btn = v(::button)
+    val btn = button()
 
-    override val root = v(::verticalLayout) {
-        add(btn, lParams(gravity = Gravity.CENTER_HORIZONTAL))
+    override val root = verticalLayout {
+        add(btn, lParams(gravity = gravityCenterHorizontal))
     }
 }

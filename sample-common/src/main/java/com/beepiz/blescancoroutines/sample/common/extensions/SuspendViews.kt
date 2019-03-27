@@ -1,19 +1,24 @@
 package com.beepiz.blescancoroutines.sample.common.extensions
 
 import android.view.View
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlin.coroutines.experimental.suspendCoroutine
+import androidx.core.view.isVisible
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-suspend fun View.awaitOneClick() = suspendCoroutine<Unit> { continuation ->
-    setOnClickListener {
-        setOnClickListener(null)
-        continuation.resume(Unit)
+suspend fun View.awaitOneClick(
+    disableAfterClick: Boolean = true,
+    hideAfterClick: Boolean = false
+) = try {
+    if (disableAfterClick) isEnabled = true
+    if (hideAfterClick) isVisible = true
+    suspendCancellableCoroutine<Unit> { continuation ->
+        setOnClickListener { continuation.resume(Unit) }
     }
-}
-
-suspend fun View.clicks(capacity: Int = Channel.UNLIMITED): ReceiveChannel<Unit> {
-    val clicksChannel = Channel<Unit>(capacity)
-    setOnClickListener { clicksChannel.offer(Unit) }
-    return clicksChannel
+} finally {
+    setOnClickListener(null)
+    if (disableAfterClick) isEnabled = false
+    if (hideAfterClick) isVisible = false
 }
