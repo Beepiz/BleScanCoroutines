@@ -3,8 +3,8 @@ package com.beepiz.blescancoroutines.sample
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.ReceiveChannel
 import splitties.toast.longToast
 
 suspend inline fun Activity.getPermission(

@@ -2,18 +2,17 @@ package com.beepiz.bluetooth.scancoroutines.experimental
 
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
-import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.support.annotation.RequiresApi
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.channels.SendChannel
 
-@RequiresApi(LOLLIPOP)
+@RequiresApi(21)
 internal class ChannelScanCallback(private val channel: SendChannel<ScanResult>) : ScanCallback() {
     override fun onScanResult(callbackType: Int, result: ScanResult) {
-        channel.offer(result)
+        runCatching { channel.offer(result) }
     }
 
     override fun onBatchScanResults(results: List<ScanResult>) {
-        results.forEach { channel.offer(it) }
+        runCatching { results.forEach { channel.offer(it) } }
     }
 
     override fun onScanFailed(errorCode: Int) {
